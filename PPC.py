@@ -4,10 +4,7 @@ import glob, os
 
 files = glob.glob("ppc_pile_cap v0.18d.xlsx")
 output_file = 'PPC Pile.xlsx'
-df_frame_assign = pd.DataFrame()
 df_Frame_force = pd.DataFrame()
-df_Frame_section = pd.DataFrame()
-df_frame_connet = pd.DataFrame()
 df_frame_coor = pd.DataFrame()
 
 for each in files:
@@ -18,11 +15,11 @@ for each in files:
 	df_frame_coor = pd.read_excel(each, sheetname = 'Obj Geom - Point Coordinates',skiprows=1)
 
     
-df=df_Frame_force.ix[1:,['Area','Point1','Point2','Point3','Point4']]
+df=df_Frame_force.loc[df_Frame_force.index[1:],['Area','Point1','Point2','Point3','Point4']]
 df2=pd.melt(df,id_vars=['Area'], value_vars=['Point1', 'Point2', 'Point3', 'Point4'])
 df2=df2.sort_values(['Area','value'], ascending=[False,True]).reset_index(drop=True)
 df2.rename(columns = {'value':'Point'}, inplace = True)
-df3 = df_frame_coor.loc[1:]
+df3 = df_frame_coor.loc[1:, ["Point", "GlobalX", "GlobalY"]]
 df4 = pd.merge(df2, df3, how='left', on=['Point'])
 
 bp_xmin=df4.groupby(['Area']).GlobalX.min()
@@ -40,9 +37,11 @@ df_pilecap['Depth'] = df_pilecap.Y_max - df_pilecap.Y_min
 df_pilecap['X_center'] = df_pilecap.X_min + df_pilecap.Width/2
 df_pilecap['Y_center'] = df_pilecap.Y_min + df_pilecap.Depth/2
 
+# print(df4)
+# print(bp_xmin)
 #df_pilecap = df_pilecap.reset_index()
 
-def is_point_inside_rect(pilecap, xx,yy):
+def is_point_inside_rect(pilecap,xx,yy):
     bp = pd.DataFrame()
     bp = pilecap.reset_index()
     bp['x'] = xx.iloc[0]-bp.X_min
@@ -50,7 +49,7 @@ def is_point_inside_rect(pilecap, xx,yy):
     bp['wd']=bp.Width*bp.Depth
     bp['xy']=bp.x*bp.y
     bp['ff']=0
-    bp.loc[(bp.xy >0) & (bp.xy < bp.wd) & (bp.y<bp.Depth) & (bp.x <bp.Width), 'ff'] = 1
+    bp.loc[(bp.xy > 0) & (bp.xy < bp.wd) & (bp.y < bp.Depth) & (bp.x < bp.Width), 'ff'] = 1
     aa=bp.Area[bp.ff==1]
     return bp.Area[bp.ff==1].iloc[0]
 
@@ -65,21 +64,22 @@ for name in ppc.Point:
     ppc_name.append(aa11)
     ii+=1
     print(ii)
-    
-ppc['Pile Cap'] = ppc_name
+    print(aa11)
+ 
+# ppc['Pile Cap'] = ppc_name
 
-writer = pd.ExcelWriter(output_file, engine='xlsxwriter')
+# writer = pd.ExcelWriter(output_file, engine='xlsxwriter')
 
-# Convert the dataframe to an XlsxWriter Excel object.
+# # Convert the dataframe to an XlsxWriter Excel object.
 
-ppc.index +=1
+# ppc.index +=1
 
-ppc.to_excel(writer, sheet_name='PPC')
+# ppc.to_excel(writer, sheet_name='PPC')
 
-df_pilecap_OUT = df_pilecap.reset_index()
-df_pilecap_OUT.index +=1
+# df_pilecap_OUT = df_pilecap.reset_index()
+# df_pilecap_OUT.index +=1
 
-df_pilecap_OUT.to_excel(writer, sheet_name='Pile Cap')
+# df_pilecap_OUT.to_excel(writer, sheet_name='Pile Cap')
 
-writer.save()
+# writer.save()
 
