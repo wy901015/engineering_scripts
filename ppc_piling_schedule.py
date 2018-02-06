@@ -70,13 +70,13 @@ def return_ppc_piling_schedule():
     for sls_case, value in sls_without_wind.items():
         print ("Working load cases include: " + sls_case)
         df_schedule[sls_case] = df_schedule.DDL * sls_without_wind[sls_case]["D"] + df_schedule.LL * sls_without_wind[sls_case]["L"] + df_wind_max * sls_without_wind[sls_case]["W"] + df_seismic_max * sls_without_wind[sls_case]["E"] + df_schedule.NSF * sls_without_wind[sls_case]["NSF"] + df_schedule.UPLIFT * sls_without_wind[sls_case]["U"] 
-        df_schedule["Ratio " + sls_case] = np.where(df_schedule["PileCP"] > df_schedule[sls_case], df_schedule[sls_case]/df_schedule["PileCP"], -1).astype(float)
+        df_schedule["Ratio " + sls_case] = np.where(df_schedule["PileCP"] > df_schedule[sls_case], df_schedule[sls_case]/df_schedule["PileCP"], 999).astype(float)
         df_schedule[sls_case] = df_schedule[sls_case].astype(float, errors="raise")
 
     for sls_case, value in sls_with_wind.items():
         print ("Working load cases include: " + sls_case)
         df_schedule[sls_case] = df_schedule.DDL * sls_with_wind[sls_case]["D"] + df_schedule.LL * sls_with_wind[sls_case]["L"] + df_wind_max * sls_with_wind[sls_case]["W"] + df_seismic_max * sls_with_wind[sls_case]["E"] + df_schedule.NSF * sls_with_wind[sls_case]["NSF"] + df_schedule.UPLIFT * sls_with_wind[sls_case]["U"] 
-        df_schedule["Ratio " + sls_case] = np.where(df_schedule["PileCPW"] > df_schedule[sls_case], df_schedule[sls_case]/df_schedule["PileCPW"], -1).astype(float)
+        df_schedule["Ratio " + sls_case] = np.where(df_schedule["PileCPW"] > df_schedule[sls_case], df_schedule[sls_case]/df_schedule["PileCPW"], 999).astype(float)
         df_schedule[sls_case] = df_schedule[sls_case].astype(float, errors="raise")
 
     df_ratio = df_schedule.filter(regex="Ratio")
@@ -85,7 +85,7 @@ def return_ppc_piling_schedule():
     count = pd.DataFrame(cap["Pile Cap"].value_counts().reset_index())
     count.columns = ["Pile Cap", "Count"]
     df_schedule_with_cap_count = cap.merge(count, on="Pile Cap")
-    df_schedule_out = df_schedule_with_cap_count.loc[:, ["Point", "Pile Cap", "Count", "NSF", "DDL", "LL", "WX", "WY", "WU", "WV", "EX", "EY", "UPLIFT"] + list(sls_with_wind.keys()) + ["PileCP", "PileCPW", "Ratio"]]
+    df_schedule_out = df_schedule_with_cap_count.loc[:, ["Point", "Pile Cap", "Count", "NSF", "DDL", "LL", "WX", "WY", "WU", "WV", "EX", "EY", "UPLIFT"] + list(sls_without_wind.keys()) + list(sls_with_wind.keys()) + ["PileCP", "PileCPW", "Ratio"]]
 
     return df_schedule_out
 
