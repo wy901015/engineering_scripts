@@ -107,7 +107,7 @@ df2.to_excel(writer, sheet_name='Axial Load(BP)')
 df3.index +=1
 df3.to_excel(writer, sheet_name='Lateral Load (BP)')
 
-df_bp2_out.to_excel(writer, sheet_name='Lateral Load Sum')
+# df_bp2_out.to_excel(writer, sheet_name='Lateral Load Sum')
 
 df_bp_lateral.rename(columns = {'Node':'Node1','Pile':'Node'}, inplace = True)
 df_bp_lateral=df_bp_lateral.sort_values(['Node1','OutputCase'], ascending=[True,True]).reset_index(drop=True)

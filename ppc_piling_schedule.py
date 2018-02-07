@@ -67,13 +67,13 @@ def return_ppc_piling_schedule():
     df_wind_max = df_schedule[["WX", "WY", "WU", "WV"]].max(axis = 1)
     df_seismic_max = df_schedule[["EX", "EY"]].max(axis = 1)
 
-    for sls_case, value in sls_without_wind.items():
+    for sls_case in sls_without_wind:
         print ("Working load cases include: " + sls_case)
         df_schedule[sls_case] = df_schedule.DDL * sls_without_wind[sls_case]["D"] + df_schedule.LL * sls_without_wind[sls_case]["L"] + df_wind_max * sls_without_wind[sls_case]["W"] + df_seismic_max * sls_without_wind[sls_case]["E"] + df_schedule.NSF * sls_without_wind[sls_case]["NSF"] + df_schedule.UPLIFT * sls_without_wind[sls_case]["U"] 
         df_schedule["Ratio " + sls_case] = np.where(df_schedule["PileCP"] > df_schedule[sls_case], df_schedule[sls_case]/df_schedule["PileCP"], 999).astype(float)
         df_schedule[sls_case] = df_schedule[sls_case].astype(float, errors="raise")
 
-    for sls_case, value in sls_with_wind.items():
+    for sls_case in sls_with_wind:
         print ("Working load cases include: " + sls_case)
         df_schedule[sls_case] = df_schedule.DDL * sls_with_wind[sls_case]["D"] + df_schedule.LL * sls_with_wind[sls_case]["L"] + df_wind_max * sls_with_wind[sls_case]["W"] + df_seismic_max * sls_with_wind[sls_case]["E"] + df_schedule.NSF * sls_with_wind[sls_case]["NSF"] + df_schedule.UPLIFT * sls_with_wind[sls_case]["U"] 
         df_schedule["Ratio " + sls_case] = np.where(df_schedule["PileCPW"] > df_schedule[sls_case], df_schedule[sls_case]/df_schedule["PileCPW"], 999).astype(float)
@@ -91,7 +91,8 @@ def return_ppc_piling_schedule():
 
 # Print out to dxf
 def return_bad_piles_in_dxf():
-    df_to_dxf = df_schedule.loc[df_schedule["Ratio"] < target_util , ["Point", "GlobalX", "GlobalY"]]
+    df_schedule = return_ppc_piling_schedule()
+    df_to_dxf = df_schedule.loc[df_schedule["Ratio"] < target_util & df_schedule["Ratio"] == 999 , ["Point", "GlobalX", "GlobalY"]]
     df_to_dxf["Input"] = "-TEXT"
     df_to_dxf["Text Height"] = 300
     df_to_dxf["Text Angle"] = 0
